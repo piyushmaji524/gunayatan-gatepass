@@ -1,0 +1,73 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gatepass_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    strategy:
+      matrix:
+        php-version: [7.4, 8.0, 8.1, 8.2]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php-version }}
+        extensions: mysqli, pdo_mysql, gd, mbstring, curl, zip
+        tools: composer
+
+    - name: Validate composer.json
+      run: composer validate --strict
+      if: hashFiles('composer.json') != ''
+
+    - name: Install dependencies
+      run: composer install --no-interaction --no-progress --no-dev
+      if: hashFiles('composer.json') != ''
+
+    - name: Check PHP Syntax
+      run: find . -name "*.php" -not -path "./vendor/*" -not -path "./fpdf/*" | xargs -I {} php -l {}
+
+    - name: Setup Database
+      run: |
+        mysql -h 127.0.0.1 -u root -proot gatepass_test < database.sql
+
+    - name: Run Security Checks
+      run: |
+        # Check for common security issues
+        echo "Running basic security checks..."
+        # Check for exposed config files
+        if grep -r "password\|secret" includes/ --include="*.php" | grep -v "template"; then
+          echo "Warning: Potential sensitive data found in config files"
+          exit 1
+        fi
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Production
+      run: |
+        echo "Deployment step would go here"
+        # Add your deployment commands here

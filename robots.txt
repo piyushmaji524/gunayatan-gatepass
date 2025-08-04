@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /includes/
+Disallow: /templates/
+Disallow: /fpdf/
+Disallow: /uploads/
+Disallow: /install.php
+Disallow: /index.php?*
+Disallow: /admin/
+Disallow: /security/
+Disallow: /user/
+
+# Sitemap location (Uncomment and replace with actual location if you have one)
+# Sitemap: https://yourdomain.com/sitemap.xml

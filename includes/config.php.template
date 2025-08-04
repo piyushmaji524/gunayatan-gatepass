@@ -1,0 +1,131 @@
+<?php
+// Database Configuration
+define('DB_HOST', '{{DB_HOST}}');
+define('DB_USER', '{{DB_USER}}');
+define('DB_PASS', '{{DB_PASS}}');
+define('DB_NAME', '{{DB_NAME}}');
+
+// Application Constants
+define('APP_NAME', '{{APP_NAME}}');
+define('APP_URL', '{{APP_URL}}');
+
+// Session Configuration
+session_start();
+
+// Error Reporting (turn off in production)
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL);
+
+// Date/Time Configuration
+date_default_timezone_set('{{TIMEZONE}}');
+
+// Connect to Database
+function connectDB() {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    return $conn;
+}
+
+// Helper Functions
+function sanitizeInput($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
+
+// Log System Activity
+function logActivity($userId, $action, $details = '') {
+    $conn = connectDB();
+    $userId = (int)$userId;
+    $action = $conn->real_escape_string($action);
+    $details = $conn->real_escape_string($details);
+    $ipAddress = $_SERVER['REMOTE_ADDR'];
+    $userAgent = $conn->real_escape_string($_SERVER['HTTP_USER_AGENT']);
+    
+    $sql = "INSERT INTO logs (user_id, action, details, ip_address, user_agent) 
+            VALUES ($userId, '$action', '$details', '$ipAddress', '$userAgent')";
+    $conn->query($sql);
+    $conn->close();
+}
+
+// Check if user is logged in
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
+}
+
+// Generate unique gatepass number
+function generateGatepassNumber() {
+    return 'GP' . date('ymd') . rand(100, 999);
+}
+
+// Format date for display
+function formatDate($date) {
+    return date('d M Y', strtotime($date));
+}
+
+// Format time for display
+function formatTime($time) {
+    return date('h:i A', strtotime($time));
+}
+
+// Get user role
+function getUserRole() {
+    return $_SESSION['role'] ?? '';
+}
+
+// Check if user has permission
+function hasPermission($requiredRole) {
+    if (!isLoggedIn()) {
+        return false;
+    }
+    
+    if (is_array($requiredRole)) {
+        return in_array($_SESSION['role'], $requiredRole);
+    } else {
+        return $_SESSION['role'] == $requiredRole;
+    }
+}
+
+// Get user name by ID
+function getUserName($userId) {
+    $conn = connectDB();
+    $userId = (int)$userId;
+    
+    $stmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $name = $row['name'];
+    } else {
+        $name = "Unknown User";
+    }
+    
+    $stmt->close();
+    $conn->close();
+    
+    return $name;
+}
+
+// Check if file exists and is an image
+function isImage($file) {
+    $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+    
+    if (!file_exists($file)) {
+        return false;
+    }
+    
+    $file_info = @getimagesize($file);
+    
+    if ($file_info && in_array($file_info['mime'], $allowed_types)) {
+        return true;
+    }
+    
+    return false;
+}

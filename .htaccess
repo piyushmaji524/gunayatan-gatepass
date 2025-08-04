@@ -1,0 +1,85 @@
+# Prevent directory browsing
+Options -Indexes
+
+# Set default charset
+AddDefaultCharset UTF-8
+
+# Enable rewriting
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Force HTTPS (uncomment if using SSL)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Redirect /install.php to / if system is already installed
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteCond %{REQUEST_URI} ^/install\.php$ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/.installed -f
+    RewriteRule ^(.*)$ / [R=301,L]
+    
+    # Deny access to config files
+    RewriteRule ^includes/config.php$ - [F]
+    RewriteRule ^includes/config.php.template$ - [F]
+    RewriteRule ^.installed$ - [F]
+</IfModule>
+
+# Deny access to hidden files and directories
+<IfModule mod_rewrite.c>
+    RewriteCond %{SCRIPT_FILENAME} -d [OR]
+    RewriteCond %{SCRIPT_FILENAME} -f
+    RewriteRule "(^|/)\." - [F]
+</IfModule>
+
+# Protect against common vulnerabilities
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    # For older browsers that don't support Content-Security-Policy
+    Header set X-Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self'"
+</IfModule>
+
+# PHP settings
+<IfModule mod_php7.c>
+    # Disallow dangerous functions
+    php_value disable_functions exec,passthru,shell_exec,system,proc_open,popen,curl_exec,curl_multi_exec,parse_ini_file,show_source
+    
+    # Limit file uploads
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    
+    # Session security
+    php_value session.use_only_cookies 1
+    php_value session.cookie_httponly 1
+</IfModule>
+
+# Restrict access to system files
+<FilesMatch "(^\.|config\.php|\.sql|\.htaccess)">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# Allow access to the install.php file
+<Files install.php>
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Set browser caching
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/pdf "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType application/x-javascript "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresDefault "access plus 1 week"
+</IfModule>

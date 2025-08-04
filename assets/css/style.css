@@ -1,0 +1,660 @@
+/* Custom CSS for Gunayatan Gatepass System */
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --success-color: #2ecc71;
+    --warning-color: #f39c12;
+    --danger-color: #e74c3c;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+}
+
+/* Ensure quick search box is prominently displayed */
+.security-quick-search {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 1000;
+    position: relative;
+}
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.navbar-custom {
+    background-color: #2c3e50; /* Changed navbar color to a rich navy blue */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-custom .navbar-brand {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Enhanced text shadow for better visibility */
+    letter-spacing: 0.5px;
+}
+
+.navbar-custom .nav-link {
+    color: #ffffff; /* Pure white for maximum readability */
+    font-weight: 500; /* Medium weight for better visibility */
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+    padding: 0.6rem 1rem;
+    margin: 0 0.1rem;
+}
+
+.navbar-custom .nav-link:hover {
+    color: #3498db; /* Updated highlight color to match the theme */
+    background-color: rgba(255, 255, 255, 0.1); /* Lighter background on hover for contrast */
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.navbar-custom .nav-link.active {
+    color: #ffffff !important;
+    font-weight: 600;
+    background-color: rgba(52, 152, 219, 0.4); /* Updated accent color for active item */
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom navbar toggler icon (hamburger) */
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255,255,255,0.4);
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.navbar-dark .navbar-toggler:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255,255,255,0.6);
+}
+
+.navbar-dark .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.5);
+    outline: none;
+}
+
+.navbar-toggler-icon {
+    width: 1.3em;
+    height: 1.3em;
+}
+
+/* Dropdown menu styling for better readability */
+.navbar-custom .dropdown-menu {
+    background-color: #ffffff;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 8px 0;
+    min-width: 200px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.navbar-custom .dropdown-item {
+    color: #333333;
+    padding: 10px 20px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.navbar-custom .dropdown-item:hover {
+    background-color: #eef7ff;
+    color: #0d6efd;
+    padding-left: 24px;
+}
+
+.navbar-custom .dropdown-item:active,
+.navbar-custom .dropdown-item:focus {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+
+.navbar-custom .dropdown-item i {
+    width: 24px;
+    text-align: center;
+    margin-right: 6px;
+}
+
+/* Add a subtle divider between dropdown items */
+.navbar-custom .dropdown-divider {
+    margin: 4px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Mobile navbar adjustments */
+@media (max-width: 991.98px) {
+    .navbar-custom .navbar-collapse {
+        background-color: #2c3e50; /* Updated to match the new navbar color */
+        border-radius: 8px;
+        margin-top: 10px;
+        padding: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .navbar-custom .nav-link {
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 5px;
+    }
+    
+    .navbar-custom .nav-link:hover,
+    .navbar-custom .nav-link.active {
+        background-color: rgba(77, 171, 247, 0.2);
+    }
+    
+    .navbar-custom .dropdown-menu {
+        background-color: #1e2a36;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .navbar-custom .dropdown-item {
+        color: #e6e6e6;
+    }
+    
+    .navbar-custom .dropdown-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #4dabf7;
+    }
+    
+    .navbar-custom .dropdown-divider {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* Dashboard Styles */
+.dashboard-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+.dashboard-icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+/* User Profile Badge and Dropdown Styling */
+.user-profile-link {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+}
+
+.user-profile-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.user-role-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    background: rgba(77, 171, 247, 0.8);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 8px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-header {
+    padding: 0;
+    white-space: normal;
+}
+
+.user-header {
+    padding: 15px;
+    text-align: center;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 7px 7px 0 0;
+}
+
+.user-header i {
+    color: #16202a;
+    margin-bottom: 10px;
+}
+
+.user-header p {
+    color: #333;
+    margin-bottom: 0;
+}
+
+.user-header small {
+    display: block;
+    color: #777;
+    margin-top: 3px;
+}
+
+/* Status Colors */
+.status-pending {
+    color: var(--warning-color);
+}
+
+.status-approved {
+    color: var(--success-color);
+}
+
+.status-declined {
+    color: var(--danger-color);
+}
+
+/* Tables */
+.table-custom thead {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+}
+
+/* Utility Classes */
+.rounded-custom {
+    border-radius: 10px;
+}
+
+.bg-light-custom {
+    background-color: #f8f9fa;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .dashboard-icon {
+        font-size: 2rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+}
+
+/* PDF Preview */
+.gatepass-pdf-preview {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for status changes */
+@keyframes highlight {
+    0% { background-color: rgba(46, 204, 113, 0.2); }
+    100% { background-color: transparent; }
+}
+
+.highlight-animation {
+    animation: highlight 2s ease;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* Item List in Forms */
+.item-entry {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.remove-item {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: var(--danger-color);
+    cursor: pointer;
+}
+
+/* Badges */
+.badge-custom-pending {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-custom-approved {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.badge-custom-declined {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-only {
+        display: block !important;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Login page */
+.login-page {
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-box {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--secondary-color);
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #e6e6e6 !important;
+}
+
+/* Make sure dark mode styles have higher specificity */
+html body.dark-mode .card,
+html body.dark-mode .modal-content,
+html body.dark-mode .dropdown-menu {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .card-header,
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    background-color: #252525;
+    border-color: #333;
+}
+
+body.dark-mode .table {
+    color: #e6e6e6;
+}
+
+body.dark-mode .table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e6e6e6;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+    border-color: #4dabf7;
+    box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.25);
+}
+
+body.dark-mode .dropdown-item {
+    color: #e6e6e6;
+}
+
+body.dark-mode .dropdown-item:hover {
+    background-color: #333;
+    color: #4dabf7;
+}
+
+body.dark-mode .user-header {
+    background-color: #252525;
+    border-color: #333;
+}
+
+body.dark-mode .user-header i,
+body.dark-mode .user-header p,
+body.dark-mode .user-header small {
+    color: #e6e6e6;
+}
+
+body.dark-mode hr,
+body.dark-mode .dropdown-divider {
+    border-color: #444;
+}
+
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Specific dark mode overrides for navbar */
+body.dark-mode .navbar-custom {
+    background-color: #1a252f !important; /* Darker version of the navbar color in dark mode */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .user-profile-link {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .user-profile-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode transition effect */
+body,
+body.dark-mode,
+.card,
+modal-content,
+.dropdown-menu,
+.form-control,
+.form-select,
+.btn-close {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced Alert Styling */
+.alert {
+    border-radius: 8px;
+    border-left-width: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.alert-success {
+    border-left-color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.alert-info {
+    border-left-color: #3498db;
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.alert-warning {
+    border-left-color: #f39c12;
+    background-color: rgba(243, 156, 18, 0.1);
+}
+
+.alert-danger {
+    border-left-color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+body.dark-mode .alert-success {
+    background-color: rgba(46, 204, 113, 0.15);
+    color: #e6e6e6;
+}
+
+body.dark-mode .alert-info {
+    background-color: rgba(52, 152, 219, 0.15);
+    color: #e6e6e6;
+}
+
+body.dark-mode .alert-warning {
+    background-color: rgba(243, 156, 18, 0.15);
+    color: #e6e6e6;
+}
+
+body.dark-mode .alert-danger {
+    background-color: rgba(231, 76, 60, 0.15);
+    color: #e6e6e6;
+}
+
+/* Accessibility Focus Styles */
+:focus-visible {
+    outline: 3px solid rgba(77, 171, 247, 0.5) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+body.dark-mode :focus-visible {
+    outline: 3px solid rgba(77, 171, 247, 0.7) !important;
+}
+
+/* Better Button Styling */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #2980b9;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    border-color: #27ae60;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #c0392b;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border-color: #e67e22;
+}
+
+.navbar-custom .theme-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin-right: 10px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-custom .theme-toggle-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.navbar-custom .theme-toggle-btn i {
+    font-size: 1.2rem;
+}
+
+/* Dark mode icon */
+body.dark-mode .theme-toggle-btn i,
+body.dark-mode #menu-theme-icon {
+    color: #f1c40f; /* Yellow color for sun icon */
+}
+
+/* Consistent hover styles */
+body, .navbar-custom, .nav-link, .btn, .theme-toggle-btn, .dropdown-item {
+    transition: all 0.3s ease;
+}

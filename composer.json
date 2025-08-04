@@ -1,0 +1,54 @@
+{
+    "name": "piyushmaji524/gunayatan-gatepass",
+    "description": "A comprehensive web-based system for managing material exit requests within an organization",
+    "type": "project",
+    "keywords": ["gatepass", "material-management", "php", "mysql", "bootstrap", "security"],
+    "homepage": "https://github.com/piyushmaji524/gunayatan-gatepass",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Piyush Maji",
+            "email": "piyush.maji@your_domain_name",
+            "homepage": "https://github.com/piyushmaji524",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/piyushmaji524/gunayatan-gatepass/issues",
+        "source": "https://github.com/piyushmaji524/gunayatan-gatepass"
+    },
+    "require": {
+        "php": ">=7.4",
+        "ext-mysqli": "*",
+        "ext-gd": "*",
+        "ext-mbstring": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "phpmailer/phpmailer": "^6.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "suggest": {
+        "ext-zip": "Required for file compression features",
+        "ext-pdo_mysql": "Alternative to mysqli for database connections"
+    },
+    "autoload": {
+        "psr-4": {
+            "GunayatanGatepass\\": "includes/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "check-syntax": "find . -name '*.php' -not -path './vendor/*' -not -path './fpdf/*' | xargs -I {} php -l {}",
+        "post-install-cmd": [
+            "@php -r \"if (!file_exists('includes/config.php')) { copy('includes/config.php.template', 'includes/config.php'); echo 'Config file created. Please edit includes/config.php with your settings.\\n'; }\""
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

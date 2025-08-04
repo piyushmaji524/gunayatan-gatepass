@@ -1,0 +1,79 @@
+# Timestamp Issues Fix - Summary
+
+## Issue Identified
+The system was experiencing inconsistencies between the displayed timestamps and the actual time of actions 
+(creation, approval, verification). For example, a gatepass created at 2:14 PM would show as being created at 8:44 AM.
+
+## Root Causes
+1. Hardcoded timezone offset ('+05:30') in database connection
+2. Mismatch between PHP and MySQL timezone settings
+3. Improper handling of timezone conversion in formatDateTime() function
+4. Inconsistent use of date formatting across files
+
+## Changes Made
+
+### Core Configuration (config.php)
+- Replaced hardcoded timezone offset with dynamic calculation based on PHP's timezone setting
+- Improved the formatDateTime() function to properly handle timezone conversion
+
+```php
+// Improved formatDateTime() function
+function formatDateTime($datetime, $format = 'd M Y, h:i A') {
+    if (empty($datetime)) {
+        return '';
+    }
+    
+    try {
+        $dt = new DateTime($datetime);
+        $timezone = date_default_timezone_get();
+        $dt->setTimezone(new DateTimeZone($timezone));
+        return $dt->format($format);
+    } catch (Exception $e) {
+        error_log("Date formatting error: " . $e->getMessage() . " for date: " . $datetime);
+        return $datetime;
+    }
+}
+```
+
+### Database Connection (config.php)
+```php
+// Convert PHP timezone name to offset for MySQL
+$dateTimeZone = new DateTimeZone($timezone);
+$dateTime = new DateTime("now", $dateTimeZone);
+$offset = $dateTimeZone->getOffset($dateTime) / 3600;
+$offsetString = ($offset >= 0 ? '+' : '') . $offset . ':00';
+
+// Set MySQL session timezone using calculated offset
+$conn->query("SET time_zone = '$offsetString'");
+```
+
+### Timestamp Creation
+- Modified all timestamp creation to use MySQL's NOW() function instead of PHP's date() function
+- Updated files: 
+  * security/verify_gatepass.php
+  * security/decline_gatepass.php
+  * admin/approve_gatepass.php
+  * admin/decline_gatepass.php
+  * security/view_gatepass.php
+
+### Timestamp Display
+- Updated all timestamp displays to use the formatDateTime() function instead of direct date() formatting
+- Updated files:
+  * admin/dashboard.php
+  * user/view_gatepass.php
+  * admin/profile.php
+  * security/profile.php
+  * user/profile.php
+  * and others
+
+## Testing Recommendations
+1. **Create a new gatepass** and check if the creation time matches the actual time
+2. **Approve a gatepass** as an admin and verify the approval time is correct
+3. **Verify a gatepass** as security and check if the verification time is correct
+4. **Check the dashboard** to ensure all displayed timestamps are correct
+5. **View profile pages** to verify account creation dates display correctly
+
+## Potential Further Improvements
+1. Standardize date format display across the system
+2. Add a global configuration setting for preferred date/time format
+3. Add timezone selection option in user profiles for users in different timezones

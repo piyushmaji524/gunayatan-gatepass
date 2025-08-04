@@ -1,0 +1,799 @@
+<?php
+// reports.php - Admin reports generation page
+require_once '../includes/config.php';
+
+// Check if user is logged in and is an admin
+if (!function_exists('isLoggedIn')) {
+    function isLoggedIn() {
+        return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+    }
+}
+
+if (!isLoggedIn() || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.php");
+    exit();
+}
+
+// Set page title
+$page_title = "Reports";
+
+// Initialize database connection
+$conn = connectDB();
+
+// Handle report generation
+$report_data = array();
+$report_type = isset($_GET['type']) ? $_GET['type'] : '';
+$date_from = isset($_GET['date_from']) ? $_GET['date_from'] : date('Y-m-01'); // Default to first day of current month
+$date_to = isset($_GET['date_to']) ? $_GET['date_to'] : date('Y-m-d'); // Default to current day
+
+// Process report generation
+if ($report_type) {
+    try {
+        switch ($report_type) {
+            case 'daily':
+                // Daily gatepass report
+                $report_data = getDailyReport($conn, $date_from, $date_to);
+                break;
+            case 'weekly':
+                // Weekly gatepass report
+                $report_data = getWeeklyReport($conn, $date_from, $date_to);
+                break;
+            case 'monthly':
+                // Monthly gatepass report
+                $report_data = getMonthlyReport($conn, $date_from, $date_to);
+                break;
+            case 'user':
+                // User activity report
+                $user_id = isset($_GET['user_id']) ? $_GET['user_id'] : 0;
+                $report_data = getUserReport($conn, $user_id, $date_from, $date_to);
+                break;
+            case 'department':
+                // Department-wise report
+                $department = isset($_GET['department']) ? $_GET['department'] : '';
+                $report_data = getDepartmentReport($conn, $department, $date_from, $date_to);
+                break;
+            case 'status':
+                // Status-wise report
+                $status = isset($_GET['status']) ? $_GET['status'] : '';
+                $report_data = getStatusReport($conn, $status, $date_from, $date_to);
+                break;
+        }
+    } catch (Exception $e) {
+        // Log the error
+        error_log("Report generation error: " . $e->getMessage());
+        $_SESSION['flash_message'] = "Error generating report: " . $e->getMessage();
+        $_SESSION['flash_type'] = "danger";
+    }
+}
+
+
+
+// Function to get daily report
+function getDailyReport($conn, $date_from, $date_to) {
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    $query = "SELECT 
+                DATE(created_at) as report_date, 
+                COUNT(*) as total_gatepasses,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'declined' THEN 1 ELSE 0 END) as declined
+              FROM gatepasses 
+              WHERE DATE(created_at) BETWEEN '$date_from' AND '$date_to'
+              GROUP BY DATE(created_at)
+              ORDER BY DATE(created_at)";
+              
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Function to get weekly report
+function getWeeklyReport($conn, $date_from, $date_to) {
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    $query = "SELECT 
+                YEARWEEK(created_at, 1) as report_week,
+                MIN(DATE(created_at)) as week_start,
+                MAX(DATE(created_at)) as week_end, 
+                COUNT(*) as total_gatepasses,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'declined' THEN 1 ELSE 0 END) as declined
+              FROM gatepasses 
+              WHERE DATE(created_at) BETWEEN '$date_from' AND '$date_to'
+              GROUP BY YEARWEEK(created_at, 1)
+              ORDER BY report_week";
+              
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Function to get monthly report
+function getMonthlyReport($conn, $date_from, $date_to) {
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    $query = "SELECT 
+                DATE_FORMAT(created_at, '%Y-%m') as report_month,
+                DATE_FORMAT(created_at, '%M %Y') as month_name,
+                COUNT(*) as total_gatepasses,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'declined' THEN 1 ELSE 0 END) as declined
+              FROM gatepasses 
+              WHERE DATE(created_at) BETWEEN '$date_from' AND '$date_to'
+              GROUP BY DATE_FORMAT(created_at, '%Y-%m'), DATE_FORMAT(created_at, '%M %Y')
+              ORDER BY report_month";
+              
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Function to get user report
+function getUserReport($conn, $user_id, $date_from, $date_to) {
+    if (!$user_id) {
+        return array();
+    }
+    
+    $user_id = (int)$user_id;
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    $query = "SELECT 
+                g.id, g.gatepass_number, g.purpose, g.status, g.created_at, g.approved_at,
+                u.name as created_by, u.department,
+                a.name as approved_by
+              FROM gatepasses g
+              LEFT JOIN users u ON g.user_id = u.id
+              LEFT JOIN users a ON g.approved_by = a.id
+              WHERE g.user_id = $user_id
+              AND DATE(g.created_at) BETWEEN '$date_from' AND '$date_to'
+              ORDER BY g.created_at DESC";
+              
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Function to get department report
+function getDepartmentReport($conn, $department, $date_from, $date_to) {
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    if (!$department) {
+        $query = "SELECT 
+                    u.department, 
+                    COUNT(g.id) as total_gatepasses,
+                    SUM(CASE WHEN g.status = 'approved' THEN 1 ELSE 0 END) as approved,
+                    SUM(CASE WHEN g.status = 'pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN g.status = 'declined' THEN 1 ELSE 0 END) as declined
+                  FROM gatepasses g
+                  JOIN users u ON g.user_id = u.id
+                  WHERE DATE(g.created_at) BETWEEN '$date_from' AND '$date_to'
+                  AND u.department IS NOT NULL AND u.department != ''
+                  GROUP BY u.department
+                  ORDER BY total_gatepasses DESC";
+    } else {
+        $department = $conn->real_escape_string($department);
+        
+        $query = "SELECT 
+                    g.id, g.gatepass_number, g.purpose, g.status, g.created_at, g.approved_at,
+                    u.name as created_by, u.department,
+                    a.name as approved_by
+                  FROM gatepasses g
+                  JOIN users u ON g.user_id = u.id
+                  LEFT JOIN users a ON g.approved_by = a.id
+                  WHERE u.department = '$department'
+                  AND DATE(g.created_at) BETWEEN '$date_from' AND '$date_to'
+                  ORDER BY g.created_at DESC";
+    }
+    
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Function to get status report
+function getStatusReport($conn, $status, $date_from, $date_to) {
+    $status = $conn->real_escape_string($status);
+    $date_from = $conn->real_escape_string($date_from);
+    $date_to = $conn->real_escape_string($date_to);
+    
+    $query = "SELECT 
+                g.id, g.gatepass_number, g.purpose, g.status, g.created_at, g.approved_at,
+                u.name as created_by, u.department,
+                a.name as approved_by
+              FROM gatepasses g
+              LEFT JOIN users u ON g.user_id = u.id
+              LEFT JOIN users a ON g.approved_by = a.id
+              WHERE g.status = '$status'
+              AND DATE(g.created_at) BETWEEN '$date_from' AND '$date_to'
+              ORDER BY g.created_at DESC";
+              
+    $result = $conn->query($query);
+    $data = array();
+    
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    
+    return $data;
+}
+
+// Include header
+include '../includes/header.php';
+?>
+
+<h1 class="mb-4"><i class="fas fa-chart-bar me-2"></i> Reports</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Generate Reports</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'daily' || !$report_type) ? 'active' : ''; ?>" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button" role="tab">Daily</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'weekly') ? 'active' : ''; ?>" id="weekly-tab" data-bs-toggle="tab" data-bs-target="#weekly" type="button" role="tab">Weekly</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'monthly') ? 'active' : ''; ?>" id="monthly-tab" data-bs-toggle="tab" data-bs-target="#monthly" type="button" role="tab">Monthly</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'user') ? 'active' : ''; ?>" id="user-tab" data-bs-toggle="tab" data-bs-target="#user" type="button" role="tab">User</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'department') ? 'active' : ''; ?>" id="department-tab" data-bs-toggle="tab" data-bs-target="#department" type="button" role="tab">Department</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link <?php echo ($report_type == 'status') ? 'active' : ''; ?>" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">Status</button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content pt-4" id="reportTabContent">
+                    <!-- Daily Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'daily' || !$report_type) ? 'show active' : ''; ?>" id="daily" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="daily">
+                            <div class="col-md-5">
+                                <label for="date_from" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="date_from" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="date_to" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="date_to" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Weekly Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'weekly') ? 'show active' : ''; ?>" id="weekly" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="weekly">
+                            <div class="col-md-5">
+                                <label for="date_from_weekly" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="date_from_weekly" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="date_to_weekly" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="date_to_weekly" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Monthly Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'monthly') ? 'show active' : ''; ?>" id="monthly" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="monthly">
+                            <div class="col-md-5">
+                                <label for="date_from_monthly" class="form-label">From Month</label>
+                                <input type="date" class="form-control" id="date_from_monthly" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="date_to_monthly" class="form-label">To Month</label>
+                                <input type="date" class="form-control" id="date_to_monthly" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- User Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'user') ? 'show active' : ''; ?>" id="user" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="user">
+                            <div class="col-md-4">
+                                <label for="user_id" class="form-label">Select User</label>
+                                <select class="form-select" id="user_id" name="user_id" required>
+                                    <option value="">-- Select User --</option>
+                                    <?php foreach ($users as $user): ?>
+                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($_GET['user_id']) && $_GET['user_id'] == $user['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($user['name'] . ' (' . $user['department'] . ')'); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_from_user" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="date_from_user" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_to_user" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="date_to_user" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Department Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'department') ? 'show active' : ''; ?>" id="department" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="department">
+                            <div class="col-md-4">
+                                <label for="department" class="form-label">Select Department</label>
+                                <select class="form-select" id="department" name="department">
+                                    <option value="">All Departments</option>
+                                    <?php foreach ($departments as $dept): ?>
+                                    <option value="<?php echo htmlspecialchars($dept); ?>" <?php echo (isset($_GET['department']) && $_GET['department'] == $dept) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($dept); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_from_dept" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="date_from_dept" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_to_dept" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="date_to_dept" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Status Report Form -->
+                    <div class="tab-pane fade <?php echo ($report_type == 'status') ? 'show active' : ''; ?>" id="status" role="tabpanel">
+                        <form action="reports.php" method="GET" class="row g-3">
+                            <input type="hidden" name="type" value="status">
+                            <div class="col-md-4">
+                                <label for="status" class="form-label">Select Status</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="approved" <?php echo (isset($_GET['status']) && $_GET['status'] == 'approved') ? 'selected' : ''; ?>>Approved</option>
+                                    <option value="pending" <?php echo (isset($_GET['status']) && $_GET['status'] == 'pending') ? 'selected' : ''; ?>>Pending</option>
+                                    <option value="declined" <?php echo (isset($_GET['status']) && $_GET['status'] == 'declined') ? 'selected' : ''; ?>>Declined</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_from_status" class="form-label">From Date</label>
+                                <input type="date" class="form-control" id="date_from_status" name="date_from" value="<?php echo $date_from; ?>" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="date_to_status" class="form-label">To Date</label>
+                                <input type="date" class="form-control" id="date_to_status" name="date_to" value="<?php echo $date_to; ?>" required>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php if ($report_type && !empty($report_data)): ?>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Report Results</h5>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary" id="printReport"><i class="fas fa-print me-1"></i> Print</button>
+                    <button class="btn btn-sm btn-outline-success" id="exportCSV"><i class="fas fa-file-csv me-1"></i> Export CSV</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="reportContent">
+                    <?php if ($report_type == 'daily'): ?>
+                        <h4>Daily Report (<?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?>)</h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Total Gatepasses</th>
+                                    <th>Approved</th>
+                                    <th>Pending</th>
+                                    <th>Declined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($report_data as $row): ?>
+                                <tr>
+                                    <td><?php echo date('M d, Y', strtotime($row['report_date'])); ?></td>
+                                    <td><?php echo $row['total_gatepasses']; ?></td>
+                                    <td><?php echo $row['approved']; ?></td>
+                                    <td><?php echo $row['pending']; ?></td>
+                                    <td><?php echo $row['declined']; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-primary">
+                                    <th>Total</th>
+                                    <th><?php echo array_sum(array_column($report_data, 'total_gatepasses')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'approved')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'pending')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'declined')); ?></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                    <?php elseif ($report_type == 'weekly'): ?>
+                        <h4>Weekly Report (<?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?>)</h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Period</th>
+                                    <th>Total Gatepasses</th>
+                                    <th>Approved</th>
+                                    <th>Pending</th>
+                                    <th>Declined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($report_data as $row): ?>
+                                <tr>
+                                    <td>Week <?php echo substr($row['report_week'], -2); ?></td>
+                                    <td><?php echo date('M d', strtotime($row['week_start'])); ?> - <?php echo date('M d, Y', strtotime($row['week_end'])); ?></td>
+                                    <td><?php echo $row['total_gatepasses']; ?></td>
+                                    <td><?php echo $row['approved']; ?></td>
+                                    <td><?php echo $row['pending']; ?></td>
+                                    <td><?php echo $row['declined']; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-primary">
+                                    <th colspan="2">Total</th>
+                                    <th><?php echo array_sum(array_column($report_data, 'total_gatepasses')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'approved')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'pending')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'declined')); ?></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                    <?php elseif ($report_type == 'monthly'): ?>
+                        <h4>Monthly Report (<?php echo date('M Y', strtotime($date_from)); ?> - <?php echo date('M Y', strtotime($date_to)); ?>)</h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Total Gatepasses</th>
+                                    <th>Approved</th>
+                                    <th>Pending</th>
+                                    <th>Declined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($report_data as $row): ?>
+                                <tr>
+                                    <td><?php echo $row['month_name']; ?></td>
+                                    <td><?php echo $row['total_gatepasses']; ?></td>
+                                    <td><?php echo $row['approved']; ?></td>
+                                    <td><?php echo $row['pending']; ?></td>
+                                    <td><?php echo $row['declined']; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-primary">
+                                    <th>Total</th>
+                                    <th><?php echo array_sum(array_column($report_data, 'total_gatepasses')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'approved')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'pending')); ?></th>
+                                    <th><?php echo array_sum(array_column($report_data, 'declined')); ?></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                    <?php elseif ($report_type == 'user'): ?>
+                        <?php
+                        $user_name = '';
+                        $user_department = '';
+                        if (!empty($report_data)) {
+                            $user_name = $report_data[0]['created_by'];
+                            $user_department = $report_data[0]['department'];
+                        }
+                        ?>
+                        <h4>User Report: <?php echo $user_name; ?> (<?php echo $user_department; ?>)</h4>
+                        <p>Period: <?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?></p>
+                        
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Gatepass #</th>
+                                    <th>Purpose</th>
+                                    <th>Status</th>
+                                    <th>Created Date</th>
+                                    <th>Approved Date</th>
+                                    <th>Approved By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($report_data as $row): ?>
+                                <tr>
+                                    <td><?php echo $row['gatepass_number']; ?></td>
+                                    <td><?php echo htmlspecialchars($row['purpose']); ?></td>
+                                    <td>
+                                        <?php if ($row['status'] == 'approved'): ?>
+                                            <span class="badge bg-success">Approved</span>
+                                        <?php elseif ($row['status'] == 'pending'): ?>
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Declined</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+                                    <td><?php echo $row['approved_at'] ? date('M d, Y', strtotime($row['approved_at'])) : '-'; ?></td>
+                                    <td><?php echo $row['approved_by'] ? htmlspecialchars($row['approved_by']) : '-'; ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        
+                    <?php elseif ($report_type == 'department'): ?>
+                        <?php if (!isset($_GET['department']) || $_GET['department'] == ''): ?>
+                            <h4>Department Summary Report</h4>
+                            <p>Period: <?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?></p>
+                            
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Total Gatepasses</th>
+                                        <th>Approved</th>
+                                        <th>Pending</th>
+                                        <th>Declined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($report_data as $row): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['department']); ?></td>
+                                        <td><?php echo $row['total_gatepasses']; ?></td>
+                                        <td><?php echo $row['approved']; ?></td>
+                                        <td><?php echo $row['pending']; ?></td>
+                                        <td><?php echo $row['declined']; ?></td>
+                                        <td>
+                                            <a href="reports.php?type=department&department=<?php echo urlencode($row['department']); ?>&date_from=<?php echo $date_from; ?>&date_to=<?php echo $date_to; ?>" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-primary">
+                                        <th>Total</th>
+                                        <th><?php echo array_sum(array_column($report_data, 'total_gatepasses')); ?></th>
+                                        <th><?php echo array_sum(array_column($report_data, 'approved')); ?></th>
+                                        <th><?php echo array_sum(array_column($report_data, 'pending')); ?></th>
+                                        <th><?php echo array_sum(array_column($report_data, 'declined')); ?></th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        <?php else: ?>
+                            <h4>Department Report: <?php echo htmlspecialchars($_GET['department']); ?></h4>
+                            <p>Period: <?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?></p>
+                            
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Gatepass #</th>
+                                        <th>Created By</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th>Approved Date</th>
+                                        <th>Approved By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($report_data as $row): ?>
+                                    <tr>
+                                        <td><?php echo $row['gatepass_number']; ?></td>
+                                        <td><?php echo htmlspecialchars($row['created_by']); ?></td>
+                                        <td><?php echo htmlspecialchars($row['purpose']); ?></td>
+                                        <td>
+                                            <?php if ($row['status'] == 'approved'): ?>
+                                                <span class="badge bg-success">Approved</span>
+                                            <?php elseif ($row['status'] == 'pending'): ?>
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-danger">Declined</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+                                        <td><?php echo $row['approved_at'] ? date('M d, Y', strtotime($row['approved_at'])) : '-'; ?></td>
+                                        <td><?php echo $row['approved_by'] ? htmlspecialchars($row['approved_by']) : '-'; ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        <?php endif; ?>
+                        
+                    <?php elseif ($report_type == 'status'): ?>
+                        <?php
+                        $status_labels = [
+                            'approved' => 'Approved',
+                            'pending' => 'Pending',
+                            'declined' => 'Declined'
+                        ];
+                        ?>
+                        <h4>Status Report: <?php echo $status_labels[$_GET['status']]; ?> Gatepasses</h4>
+                        <p>Period: <?php echo date('M d, Y', strtotime($date_from)); ?> - <?php echo date('M d, Y', strtotime($date_to)); ?></p>
+                        
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Gatepass #</th>
+                                    <th>Created By</th>
+                                    <th>Department</th>
+                                    <th>Purpose</th>
+                                    <th>Created Date</th>
+                                    <?php if ($_GET['status'] == 'approved'): ?>
+                                    <th>Approved Date</th>
+                                    <th>Approved By</th>
+                                    <?php endif; ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($report_data as $row): ?>
+                                <tr>
+                                    <td><?php echo $row['gatepass_number']; ?></td>
+                                    <td><?php echo htmlspecialchars($row['created_by']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['department']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['purpose']); ?></td>
+                                    <td><?php echo date('M d, Y', strtotime($row['created_at'])); ?></td>
+                                    <?php if ($_GET['status'] == 'approved'): ?>
+                                    <td><?php echo date('M d, Y', strtotime($row['approved_at'])); ?></td>
+                                    <td><?php echo htmlspecialchars($row['approved_by']); ?></td>
+                                    <?php endif; ?>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php elseif ($report_type && empty($report_data)): ?>
+<div class="alert alert-info">No data found for the selected criteria.</div>
+<?php endif; ?>
+
+<script>
+// Print report
+document.getElementById('printReport')?.addEventListener('click', function() {
+    const printContents = document.getElementById('reportContent').innerHTML;
+    const originalContents = document.body.innerHTML;
+    
+    document.body.innerHTML = `
+        <div class="container mt-4">
+            <h2 class="text-center mb-4">${document.title}</h2>
+            ${printContents}
+        </div>
+    `;
+    
+    window.print();
+    document.body.innerHTML = originalContents;
+    location.reload();
+});
+
+// Export to CSV
+document.getElementById('exportCSV')?.addEventListener('click', function() {
+    const tables = document.querySelectorAll('#reportContent table');
+    if (tables.length === 0) return;
+    
+    const table = tables[0];
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const row = [], cols = rows[i].querySelectorAll('td, th');
+        
+        for (let j = 0; j < cols.length; j++) {
+            // Get the text content and clean it
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/(\s\s)/gm, ' ');
+            // Escape double-quotes with double-quotes
+            data = data.replace(/"/g, '""');
+            // Add the data to the row with quotes around it
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(','));
+    }
+    
+    // Create a CSV string
+    const csvString = csv.join('\n');
+    
+    // Create a download link
+    const filename = 'report_' + new Date().toISOString().slice(0, 10) + '.csv';
+    const link = document.createElement('a');
+    link.style.display = 'none';
+    link.setAttribute('target', '_blank');
+    link.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvString));
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+</script>
+
+<?php
+// Include footer
+include '../includes/footer.php';
+?>
