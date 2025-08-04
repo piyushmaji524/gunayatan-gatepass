@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gunayatan Gatepass System - Developer Portfolio</title>
+    <meta name="description" content="A comprehensive web-based system for managing material exit requests within an organization. Built with PHP, MySQL, and modern web technologies.">
+    <meta name="keywords" content="gatepass, material management, php, mysql, bootstrap, security, pwa">
+    <meta name="author" content="Piyush Maji">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Gunayatan Gatepass System">
+    <meta property="og:description" content="Professional gatepass management system with Hindi translation support">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://piyushmaji524.github.io/gunayatan-gatepass/">
+    <meta property="og:image" content="https://piyushmaji524.github.io/gunayatan-gatepass/assets/preview.png">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gunayatan Gatepass System">
+    <meta name="twitter:description" content="Professional gatepass management system with Hindi translation support">
+    <meta name="twitter:image" content="https://piyushmaji524.github.io/gunayatan-gatepass/assets/preview.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#home">
+                <i class="fas fa-clipboard-check me-2"></i>
+                Gunayatan Gatepass
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tech-stack">Tech Stack</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#developer">Developer</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white ms-2 px-3" href="https://github.com/piyushmaji524/gunayatan-gatepass" target="_blank">
+                            <i class="fab fa-github me-1"></i>GitHub
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000">
+                    <div class="hero-content">
+                        <div class="hero-badge mb-3">
+                            <span class="badge bg-primary px-3 py-2">
+                                <i class="fas fa-star me-1"></i>
+                                Open Source Project
+                            </span>
+                        </div>
+                        <h1 class="hero-title mb-4">
+                            Professional <span class="text-gradient">Gatepass</span><br>
+                            Management System
+                        </h1>
+                        <p class="hero-subtitle mb-4">
+                            A comprehensive web-based system for managing material exit requests within organizations. 
+                            Features Hindi translation support, real-time notifications, and professional PDF generation.
+                        </p>
+                        <div class="hero-stats mb-4">
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h3 class="stat-number">3</h3>
+                                        <p class="stat-label">User Roles</p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h3 class="stat-number">PWA</h3>
+                                        <p class="stat-label">Mobile Ready</p>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="stat-item">
+                                        <h3 class="stat-number">100%</h3>
+                                        <p class="stat-label">Open Source</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hero-buttons">
+                            <a href="https://github.com/piyushmaji524/gunayatan-gatepass" class="btn btn-primary btn-lg me-3" target="_blank">
+                                <i class="fab fa-github me-2"></i>View on GitHub
+                            </a>
+                            <a href="#demo" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-play me-2"></i>Live Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="hero-image">
+                        <div class="hero-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center">
+                                    <div class="window-controls">
+                                        <span class="control close"></span>
+                                        <span class="control minimize"></span>
+                                        <span class="control maximize"></span>
+                                    </div>
+                                    <div class="ms-auto">
+                                        <span class="badge bg-success">Live System</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="hero-dashboard">
+                                    <div class="dashboard-header mb-3">
+                                        <h5><i class="fas fa-tachometer-alt me-2"></i>Gatepass Dashboard</h5>
+                                    </div>
+                                    <div class="dashboard-stats mb-3">
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <div class="mini-stat bg-primary">
+                                                    <i class="fas fa-clipboard-list"></i>
+                                                    <div>
+                                                        <h6>Total Gatepasses</h6>
+                                                        <p>247</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="mini-stat bg-success">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <div>
+                                                        <h6>Approved</h6>
+                                                        <p>189</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="recent-activity">
+                                        <h6 class="mb-2">Recent Activity</h6>
+                                        <div class="activity-item">
+                                            <i class="fas fa-check text-success"></i>
+                                            <span>Gatepass #GP2025001 verified</span>
+                                        </div>
+                                        <div class="activity-item">
+                                            <i class="fas fa-plus text-primary"></i>
+                                            <span>New gatepass created</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                    <h2 class="section-title">Powerful Features</h2>
+                    <p class="section-subtitle">Everything you need for professional gatepass management</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4>Multi-Role System</h4>
+                        <p>Three distinct user roles: Users create requests, Admins approve them, and Security personnel verify during exit.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> User Dashboard</li>
+                            <li><i class="fas fa-check"></i> Admin Panel</li>
+                            <li><i class="fas fa-check"></i> Security Interface</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-success">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <h4>Hindi Translation</h4>
+                        <p>Automatic Hindi translation support for security personnel, making the system accessible to non-English speakers.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Auto Translation</li>
+                            <li><i class="fas fa-check"></i> Bilingual Display</li>
+                            <li><i class="fas fa-check"></i> Cached Translations</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-warning">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h4>PDF Generation</h4>
+                        <p>Professional PDF documents with barcodes for easy verification and proper documentation.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Barcode Support</li>
+                            <li><i class="fas fa-check"></i> Professional Layout</li>
+                            <li><i class="fas fa-check"></i> Digital Signatures</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h4>Real-time Notifications</h4>
+                        <p>Instant notifications keep all stakeholders informed about gatepass status changes and approvals.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Push Notifications</li>
+                            <li><i class="fas fa-check"></i> Email Alerts</li>
+                            <li><i class="fas fa-check"></i> Status Updates</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="500">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-danger">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Security Features</h4>
+                        <p>Comprehensive security measures including role-based access, session management, and data protection.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> RBAC System</li>
+                            <li><i class="fas fa-check"></i> SQL Injection Protection</li>
+                            <li><i class="fas fa-check"></i> XSS Prevention</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="600">
+                    <div class="feature-card h-100">
+                        <div class="feature-icon bg-purple">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h4>Progressive Web App</h4>
+                        <p>Modern PWA features including offline capability, installable on mobile devices, and responsive design.</p>
+                        <ul class="feature-list">
+                            <li><i class="fas fa-check"></i> Offline Support</li>
+                            <li><i class="fas fa-check"></i> Mobile Installation</li>
+                            <li><i class="fas fa-check"></i> Responsive Design</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech-stack" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                    <h2 class="section-title">Technology Stack</h2>
+                    <p class="section-subtitle">Built with modern, reliable technologies</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="tech-card">
+                        <div class="tech-icon">
+                            <i class="fab fa-php"></i>
+                        </div>
+                        <h5>PHP 7.4+</h5>
+                        <p>Server-side scripting with modern PHP features</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="tech-card">
+                        <div class="tech-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h5>MySQL 5.7+</h5>
+                        <p>Reliable database management system</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="tech-card">
+                        <div class="tech-icon">
+                            <i class="fab fa-bootstrap"></i>
+                        </div>
+                        <h5>Bootstrap 5</h5>
+                        <p>Modern CSS framework for responsive design</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="tech-card">
+                        <div class="tech-icon">
+                            <i class="fab fa-js-square"></i>
+                        </div>
+                        <h5>JavaScript ES6+</h5>
+                        <p>Modern JavaScript for interactive features</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 text-center" data-aos="fade-up" data-aos-delay="500">
+                    <div class="tech-badges">
+                        <span class="badge tech-badge">Font Awesome 6</span>
+                        <span class="badge tech-badge">FPDF Library</span>
+                        <span class="badge tech-badge">PHPMailer</span>
+                        <span class="badge tech-badge">Google Translate API</span>
+                        <span class="badge tech-badge">GitHub Actions</span>
+                        <span class="badge tech-badge">PWA Support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section id="demo" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center mb-5" data-aos="fade-up">
+                    <h2 class="section-title">Live Demo</h2>
+                    <p class="section-subtitle">Experience the system with different user roles</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="demo-card">
+                        <div class="demo-icon bg-primary">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4>User Role</h4>
+                        <p>Create and manage gatepass requests</p>
+                        <div class="demo-credentials">
+                            <p><strong>Username:</strong> <code>user</code></p>
+                            <p><strong>Password:</strong> <code>user123</code></p>
+                        </div>
+                        <a href="#" class="btn btn-primary">Try User Demo</a>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="demo-card">
+                        <div class="demo-icon bg-success">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4>Admin Role</h4>
+                        <p>Approve requests and manage users</p>
+                        <div class="demo-credentials">
+                            <p><strong>Username:</strong> <code>admin</code></p>
+                            <p><strong>Password:</strong> <code>admin123</code></p>
+                        </div>
+                        <a href="#" class="btn btn-success">Try Admin Demo</a>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="demo-card">
+                        <div class="demo-icon bg-warning">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4>Security Role</h4>
+                        <p>Verify gatepasses during exit</p>
+                        <div class="demo-credentials">
+                            <p><strong>Username:</strong> <code>security</code></p>
+                            <p><strong>Password:</strong> <code>security123</code></p>
+                        </div>
+                        <a href="#" class="btn btn-warning">Try Security Demo</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-12 text-center" data-aos="fade-up" data-aos-delay="400">
+                    <div class="alert alert-info d-inline-block">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Demo credentials are for testing purposes only. Please change them in production.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Developer Section -->
+    <section id="developer" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-up">
+                    <div class="developer-info">
+                        <h2 class="section-title">Meet the Developer</h2>
+                        <p class="section-subtitle mb-4">Passionate about creating efficient, user-friendly solutions</p>
+                        <div class="developer-details">
+                            <h4 class="text-primary mb-3">Piyush Maji</h4>
+                            <p class="mb-4">
+                                Full-stack developer with expertise in PHP, MySQL, and modern web technologies. 
+                                Committed to building accessible, secure, and scalable applications that solve real-world problems.
+                            </p>
+                            <div class="developer-skills mb-4">
+                                <span class="skill-badge">PHP</span>
+                                <span class="skill-badge">MySQL</span>
+                                <span class="skill-badge">JavaScript</span>
+                                <span class="skill-badge">Bootstrap</span>
+                                <span class="skill-badge">PWA</span>
+                                <span class="skill-badge">API Development</span>
+                            </div>
+                            <div class="developer-links">
+                                <a href="https://github.com/piyushmaji524" class="btn btn-outline-dark me-3" target="_blank">
+                                    <i class="fab fa-github me-2"></i>GitHub Profile
+                                </a>
+                                <a href="mailto:contact@piyushmaji.dev" class="btn btn-primary">
+                                    <i class="fas fa-envelope me-2"></i>Contact
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="developer-image">
+                        <div class="developer-avatar">
+                            <div class="avatar-placeholder">
+                                <i class="fas fa-user fa-5x"></i>
+                            </div>
+                        </div>
+                        <div class="developer-stats">
+                            <div class="stat-item">
+                                <h3>3+</h3>
+                                <p>Years Experience</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3>15+</h3>
+                                <p>Projects Completed</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3>100%</h3>
+                                <p>Open Source</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section bg-gradient">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                    <h2 class="text-white mb-4">Ready to Get Started?</h2>
+                    <p class="text-white mb-4">
+                        Clone the repository, follow the installation guide, and start managing gatepasses efficiently!
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass" class="btn btn-light btn-lg me-3" target="_blank">
+                            <i class="fab fa-github me-2"></i>View Source Code
+                        </a>
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass/archive/refs/heads/main.zip" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-download me-2"></i>Download ZIP
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        &copy; 2025 <strong>Piyush Maji</strong>. Licensed under 
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass/blob/main/LICENSE" class="text-primary">MIT License</a>
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="footer-links">
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass" class="text-white me-3">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass/issues" class="text-white me-3">
+                            <i class="fas fa-bug"></i>
+                        </a>
+                        <a href="https://github.com/piyushmaji524/gunayatan-gatepass/blob/main/CONTRIBUTING.md" class="text-white">
+                            <i class="fas fa-heart"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="./assets/script.js"></script>
+</body>
+</html>
