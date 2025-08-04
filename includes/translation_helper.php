@@ -412,7 +412,7 @@ function tryMicrosoftTranslate($text) {
 function tryYandexTranslate($text) {
     try {
         // Yandex Translate API (free tier available)
-        $url = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=trnsl.1.1.20210101T000000Z.0123456789abcdef.0123456789abcdef0123456789abcdef01234567&text=" . urlencode($text) . "&lang=en-hi";
+        $url = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=your_domain_name.1.1.20210101T000000Z.0123456789abcdef.0123456789abcdef0123456789abcdef01234567&text=" . urlencode($text) . "&lang=en-hi";
         
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
